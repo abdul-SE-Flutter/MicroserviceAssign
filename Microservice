@@ -1,0 +1,109 @@
+const express = require('express');
+const app = express();
+
+// Create the sorting methods
+const bubbleSort = (array) => {
+  for (let i = 0; i < array.length - 1; i++) {
+    for (let j = 0; j < array.length - i - 1; j++) {
+      if (array[j] > array[j + 1]) {
+        const temp = array[j];
+        array[j] = array[j + 1];
+        array[j + 1] = temp;
+      }
+    }
+  }
+  return array;
+};
+
+const quickSort = (array, left, right) => {
+  if (left < right) {
+    const pivot = array[Math.floor((left + right) / 2)];
+    const i = left;
+    const j = right;
+
+    while (i <= j) {
+      while (array[i] < pivot) {
+        i++;
+      }
+
+      while (array[j] > pivot) {
+        j--;
+      }
+
+      if (i <= j) {
+        const temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+        i++;
+        j--;
+      }
+    }
+
+    quickSort(array, left, j);
+    quickSort(array, i, right);
+  }
+  return array;
+};
+
+const mergeSort = (array, low, high) => {
+  if (low < high) {
+    const middle = Math.floor((low + high) / 2);
+
+    const leftArray = mergeSort(array, low, middle);
+    const rightArray = mergeSort(array, middle + 1, high);
+
+    return merge(leftArray, rightArray);
+  }
+  return array;
+};
+
+const merge = (leftArray, rightArray) => {
+  const mergedArray = [];
+  let i = 0;
+  let j = 0;
+
+  while (i < leftArray.length && j < rightArray.length) {
+    if (leftArray[i] < rightArray[j]) {
+      mergedArray.push(leftArray[i]);
+      i++;
+    } else {
+      mergedArray.push(rightArray[j]);
+      j++;
+    }
+  }
+
+  while (i < leftArray.length) {
+    mergedArray.push(leftArray[i]);
+    i++;
+  }
+
+  while (j < rightArray.length) {
+    mergedArray.push(rightArray[j]);
+    j++;
+  }
+
+  return mergedArray;
+};
+
+// Create the API gateway
+app.get('/bubbleSort', (req, res) => {
+  const array = req.query.array;
+  const sortedArray = bubbleSort(array);
+  res.send(sortedArray);
+});
+
+app.get('/quickSort', (req, res) => {
+  const array = req.query.array;
+  const sortedArray = quickSort(array, 0, array.length - 1);
+  res.send(sortedArray);
+});
+
+app.get('/mergeSort', (req, res) => {
+  const array = req.query.array;
+  const sortedArray = mergeSort(array, 0, array.length - 1);
+  res.send(sortedArray);
+});
+
+app.listen(3000, () => {
+  console.log('Sort microservice listening on port 3000');
+});
